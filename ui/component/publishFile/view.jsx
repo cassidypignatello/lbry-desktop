@@ -1,6 +1,8 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
+import classnames from 'classnames';
+import { withRouter } from 'react-router';
 import { regexInvalidURI } from 'lbry-redux';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
@@ -47,6 +49,7 @@ function PublishFile(props: Props) {
 
   const { available } = ffmpegStatus;
   const [oversized, setOversized] = useState(false);
+  const [click, setClick] = useState(null);
   const RECOMMENDED_BITRATE = 6000000;
   const TV_PUBLISH_SIZE_LIMIT: number = 1073741824;
   const UPLOAD_SIZE_MESSAGE = 'Lbry.tv uploads are limited to 1 GB. Download the app for unrestricted publishing.';
@@ -56,6 +59,7 @@ function PublishFile(props: Props) {
 
   const sizeInMB = Number(size) / 1000000;
   const secondsToProcess = sizeInMB / PROCESSING_MB_PER_SECOND;
+  const urlParams = new URLSearchParams();
 
   // clear warnings
   useEffect(() => {
@@ -176,6 +180,11 @@ function PublishFile(props: Props) {
     // @endif
   }
 
+  function handleClick(postType) {
+    console.log('click!');
+    setClick(postType);
+  }
+
   function handleFileChange(file: WebFile) {
     const { showToast } = props;
     window.URL = window.URL || window.webkitURL;
@@ -262,6 +271,32 @@ function PublishFile(props: Props) {
       }
       actions={
         <React.Fragment>
+          <div className={'post-type__wrapper'}>
+            <Button
+              button={'alt'}
+              aria-label={__('File')}
+              label={__('File')}
+              className={
+                classnames(`button-toggle`, {
+                  'button-toggle--active': click === 'file',
+                })
+              }
+              icon={ICONS.FILE}
+              onClick={e => handleClick('file')}
+            />
+            <Button
+              button={'alt'}
+              aria-label={__('Text')}
+              label={__('Text')}
+              className={
+                classnames(`button-toggle`, {
+                  'button-toggle--active': click === 'text',
+                })
+              }
+              icon={ICONS.TEXT}
+              onClick={e => handleClick('text')}
+            />
+          </div>
           <FileSelector disabled={disabled} currentPath={currentFile} onFileChosen={handleFileChange} />
           {getMessage()}
           {/* @if TARGET='app' */}
